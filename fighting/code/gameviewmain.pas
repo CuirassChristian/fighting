@@ -1,15 +1,10 @@
-{ Main view, where most of the application logic takes place.
-
-  Feel free to use this code as a starting point for your own projects.
-  This template code is in public domain, unlike most other CGE code which
-  is covered by BSD or LGPL (see https://castle-engine.io/license). }
 unit GameViewMain;
 
 interface
 
 uses Classes,
-  CastleVectors, CastleComponentSerialize,
-  CastleUIControls, CastleControls, CastleKeysMouse;
+  CastleUIState, CastleVectors, CastleComponentSerialize,
+  CastleUIControls, CastleControls, CastleKeysMouse, CastleLog, CastleWindow, CastleScene, GameViewPlay;
 
 type
   { Main view, where most of the application logic takes place. }
@@ -18,12 +13,18 @@ type
     { Components designed using CGE editor.
       These fields will be automatically initialized at Start. }
     LabelFps: TCastleLabel;
+    PlayButton : TCastleButton;
+    QuitButton : TCastleButton;
+  private
+    ViewPlay : TViewPlay;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Start; override;
-    
+    procedure PlayButtonClicked(Sender: TObject);
+    procedure QuitButtonClicked(Sender: TObject);
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
     function Press(const Event: TInputPressRelease): Boolean; override;
+  
   end;
 
 var
@@ -44,10 +45,24 @@ end;
 procedure TViewMain.Start;
 begin
   inherited;
+  InitializeLog;
+  ViewPlay := TViewPlay.Create(Application);
+  PlayButton := DesignedComponent('PlayButton') as TCastleButton;
+  PlayButton.OnClick := {$ifdef FPC}@{$endif} PlayButtonClicked;
+  QuitButton := DesignedComponent('QuitButton') as TCastleButton;
+  QuitButton.OnClick := {$ifdef FPC}@{$endif} QuitButtonClicked;
 end;
 
-procedure TViewMain.PlayButtonClicked;
+// The play button on main menu
+procedure TViewMain.PlayButtonClicked(Sender : TObject);
 begin
+  WriteLnLog ('Play Button is clicked');
+  Container.View := ViewPlay;
+end;
+
+procedure TViewMain.QuitButtonClicked(Sender : TObject);
+begin
+  WriteLnLog ('Quit Button is clicked');
 end;
 
 procedure TViewMain.Update(const SecondsPassed: Single; var HandleInput: Boolean);
